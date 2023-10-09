@@ -68,5 +68,3 @@ Currently, the following regressors are in our arsenal:
 - `ET`: 🍃 Extra Trees
 - `MLP`: 🧠 Multi-layer Perceptron
 - `MOKP`: 🔮 MOKP Regressor
-
-💡 You can easily extend the `multi_output_regressor` function to add support for other regressors.
