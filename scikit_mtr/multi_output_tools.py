@@ -9,7 +9,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.utils import Bunch
 
-from openml_utils import one_hot_encoding, remove_duplicate_features
+from openml_utils import remove_duplicate_features
 from scikit_mtr.mkop.sk_mkop import MOKPRegressor
 
 tag = "2019_multioutput_paper"
