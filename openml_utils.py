@@ -2,6 +2,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from scipy import sparse
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -35,6 +36,12 @@ def remove_columns_with_same_values(df, categorical_indicator, attribute_names):
 def mean_imputation_and_one_hot_encoding(
     x_train, x_test, y_train, y_test, categorical_indicator: List[bool] = None
 ):
+    # Convert sparse matrices to dense, if applicable
+    if sparse.issparse(x_train):
+        x_train = x_train.toarray()
+    if sparse.issparse(x_test):
+        x_test = x_test.toarray()
+
     # Check if x_train and x_test are DataFrames or NumPy arrays
     if isinstance(x_train, pd.DataFrame):
         if categorical_indicator is None:
