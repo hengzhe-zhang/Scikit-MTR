@@ -12,11 +12,11 @@ from sklearn.utils import Bunch
 from openml_utils import one_hot_encoding, remove_duplicate_features
 from scikit_mtr.mkop.sk_mkop import MOKPRegressor
 
-tag = '2019_multioutput_paper'
+tag = "2019_multioutput_paper"
 
 
 def load_datasets():
-    tagged_datasets = openml.datasets.list_datasets(tag=tag, output_format='dict')
+    tagged_datasets = openml.datasets.list_datasets(tag=tag, output_format="dict")
     datasets = []
     for dataset_id, dataset in tagged_datasets.items():
         # print('dataset_id:', dataset_id)
@@ -25,15 +25,16 @@ def load_datasets():
 
 
 def load_data_by_openml(dataset_id):
-    open_dataset = openml.datasets.get_dataset(dataset_id,
-                                               download_data=True,
-                                               download_qualities=True,
-                                               download_features_meta_data=True)
+    open_dataset = openml.datasets.get_dataset(
+        dataset_id,
+        download_data=True,
+        download_qualities=True,
+        download_features_meta_data=True,
+    )
     x, y, categorical_indicator, attribute_names = open_dataset.get_data(
         dataset_format="dataframe"
     )
-    x_encoded = one_hot_encoding(x, categorical_indicator)
-    return x_encoded, y
+    return x, y
 
 
 def load_data_by_sklearn(data_id):
@@ -46,7 +47,7 @@ def load_data_by_sklearn(data_id):
 
 
 def input_encoding(df):
-    categorical_columns = df.select_dtypes(include=['category']).columns
+    categorical_columns = df.select_dtypes(include=["category"]).columns
     df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
     return df_encoded
 
@@ -67,17 +68,17 @@ def target_encoding(df):
 
 
 def multi_output_regressor(regressor):
-    if regressor == 'DT':
+    if regressor == "DT":
         return DecisionTreeRegressor()
-    elif regressor == 'LR':
+    elif regressor == "LR":
         return LinearRegression()
-    elif regressor == 'RF':
+    elif regressor == "RF":
         return RandomForestRegressor()
-    elif regressor == 'ET':
+    elif regressor == "ET":
         return ExtraTreesRegressor()
-    elif regressor == 'MLP':
+    elif regressor == "MLP":
         return MLPRegressor()
-    elif regressor == 'MOKP':
+    elif regressor == "MOKP":
         return MOKPRegressor(ngen=50)
     else:
         raise ValueError("Invalid regressor type")
@@ -85,7 +86,7 @@ def multi_output_regressor(regressor):
 
 # load_datasets()
 # load_data_by_openml()
-if __name__ == '__main__':
+if __name__ == "__main__":
     data_id = 41467
     print(load_data_by_sklearn(data_id))
     # print(load_data_by_openml(data_id))

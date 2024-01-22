@@ -1,21 +1,26 @@
+from sklearn.datasets import fetch_openml
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
+from sklearn.utils import Bunch
 
+from openml_utils import mean_imputation_and_one_hot_encoding
 from scikit_mtr.multi_output_stacking import MultiTargetRegressorStacking
 from scikit_mtr.multi_output_tools import multi_output_regressor, load_data_by_sklearn
 
-params = {
-    'regressor': 'LR',
-    'dataset': 41467,
-    'random_seed': 0
-}
+params = {"regressor": "LR", "dataset": 41467, "random_seed": 0}
 
 # Load and split data
-X, y = load_data_by_sklearn(params['dataset'])
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=params['random_seed'])
+data: Bunch = fetch_openml(data_id=params["dataset"], parser="auto")
+X, y = data.data, data.target
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=params["random_seed"]
+)
+X_train, X_test, y_train, y_test = mean_imputation_and_one_hot_encoding(
+    X_train, X_test, y_train, y_test
+)
 
 # Initialize regressor
-model = multi_output_regressor(params['regressor'])
+model = multi_output_regressor(params["regressor"])
 model.fit(X_train, y_train)
 
 # 🎯 Make predictions
