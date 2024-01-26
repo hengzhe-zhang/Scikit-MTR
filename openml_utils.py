@@ -2,7 +2,8 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from scipy import sparse
+import sklearn
+from packaging import version
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -52,10 +53,14 @@ def mean_imputation_and_one_hot_encoding(
     numerical_transformer = SimpleImputer(strategy="mean")
 
     # Creating a transformer for categorical features
+    if version.parse(sklearn.__version__) < version.parse("1.2"):
+        one_hot_encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
+    else:
+        one_hot_encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
     categorical_transformer = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+            ("onehot", one_hot_encoder),
         ]
     )
 
