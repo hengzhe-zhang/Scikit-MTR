@@ -54,9 +54,13 @@ def mean_imputation_and_one_hot_encoding(
 
     # Creating a transformer for categorical features
     if version.parse(sklearn.__version__) < version.parse("1.2"):
-        one_hot_encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
+        one_hot_encoder = OneHotEncoder(
+            handle_unknown="ignore", drop="if_binary", sparse=False
+        )
     else:
-        one_hot_encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
+        one_hot_encoder = OneHotEncoder(
+            handle_unknown="ignore", drop="if_binary", sparse_output=False
+        )
     categorical_transformer = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="most_frequent")),
