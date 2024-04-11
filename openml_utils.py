@@ -7,7 +7,7 @@ from packaging import version
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, OrdinalEncoder
 
 
 def remove_duplicate_features(x_encoded):
@@ -35,7 +35,12 @@ def remove_columns_with_same_values(df, categorical_indicator, attribute_names):
 
 
 def mean_imputation_and_one_hot_encoding(
-    x_train, x_test, y_train, y_test, categorical_indicator: List[bool] = None
+    x_train,
+    x_test,
+    y_train,
+    y_test,
+    categorical_indicator: List[bool] = None,
+    categorical_encoder="Onehot",
 ):
     # Check if x_train and x_test are DataFrames or NumPy arrays
     if isinstance(x_train, pd.DataFrame):
@@ -53,7 +58,11 @@ def mean_imputation_and_one_hot_encoding(
     numerical_transformer = SimpleImputer(strategy="mean")
 
     # Creating a transformer for categorical features
-    if version.parse(sklearn.__version__) < version.parse("1.2"):
+    if categorical_encoder == "Ordinal":
+        one_hot_encoder = OrdinalEncoder(
+            handle_unknown="use_encoded_value", unknown_value=-1
+        )
+    elif version.parse(sklearn.__version__) < version.parse("1.2"):
         one_hot_encoder = OneHotEncoder(
             handle_unknown="ignore", drop="if_binary", sparse=False
         )
