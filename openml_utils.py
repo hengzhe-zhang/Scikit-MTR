@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 import sklearn
+from category_encoders import TargetEncoder, BinaryEncoder
 from packaging import version
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -62,6 +63,10 @@ def mean_imputation_and_one_hot_encoding(
         one_hot_encoder = OrdinalEncoder(
             handle_unknown="use_encoded_value", unknown_value=-1
         )
+    elif categorical_encoder == "Target":
+        one_hot_encoder = TargetEncoder()
+    elif categorical_encoder == "Binary":
+        one_hot_encoder = BinaryEncoder()
     elif version.parse(sklearn.__version__) < version.parse("1.2"):
         one_hot_encoder = OneHotEncoder(
             handle_unknown="ignore", drop="if_binary", sparse=False
@@ -86,7 +91,7 @@ def mean_imputation_and_one_hot_encoding(
     )
 
     # Applying the transformations
-    x_train_transformed = preprocessor.fit_transform(x_train)
+    x_train_transformed = preprocessor.fit_transform(x_train, y=y_train)
     x_test_transformed = preprocessor.transform(x_test)
 
     # Convert y_train and y_test to NumPy arrays if they are not already
