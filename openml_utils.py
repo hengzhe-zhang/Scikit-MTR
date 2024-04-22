@@ -10,6 +10,11 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder, OrdinalEncoder
 
+from date_util import (
+    replace_abbreviated_months_with_numbers,
+    replace_abbreviated_days_with_numbers,
+)
+
 
 def remove_duplicate_features(x_encoded):
     # Drop duplicate columns
@@ -45,6 +50,11 @@ def mean_imputation_and_one_hot_encoding(
 ):
     # Check if x_train and x_test are DataFrames or NumPy arrays
     if isinstance(x_train, pd.DataFrame):
+        for target_column in ["month", "day"]:
+            if target_column in x_train.columns:
+                replace_abbreviated_months_with_numbers(x_train, target_column)
+                replace_abbreviated_days_with_numbers(x_test, target_column)
+
         if categorical_indicator is None:
             categorical_cols = x_train.select_dtypes(include=["category"]).columns
             numerical_cols = x_train.select_dtypes(exclude=["category"]).columns
