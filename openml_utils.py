@@ -80,7 +80,7 @@ def mean_imputation_and_one_hot_encoding(
             handle_unknown="use_encoded_value", unknown_value=-1
         )
     elif categorical_encoder == "TargetCV":
-        one_hot_encoder = TargetEncoderCV()
+        one_hot_encoder = TargetEncoderCV("continuous")
     elif categorical_encoder == "Target":
         one_hot_encoder = SimpleTargetEncoder()
     elif categorical_encoder == "Binary":
