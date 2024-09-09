@@ -3,12 +3,18 @@ from typing import List
 import numpy as np
 import pandas as pd
 import sklearn
-from category_encoders import TargetEncoder, BinaryEncoder
+from category_encoders import BinaryEncoder
+from category_encoders import TargetEncoder as SimpleTargetEncoder
 from packaging import version
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, OrdinalEncoder
+from sklearn.preprocessing import (
+    OneHotEncoder,
+    LabelEncoder,
+    OrdinalEncoder,
+)
+from sklearn.preprocessing import TargetEncoder as TargetEncoderCV
 
 from date_util import (
     replace_abbreviated_months_with_numbers,
@@ -73,8 +79,10 @@ def mean_imputation_and_one_hot_encoding(
         one_hot_encoder = OrdinalEncoder(
             handle_unknown="use_encoded_value", unknown_value=-1
         )
+    elif categorical_encoder == "TargetCV":
+        one_hot_encoder = TargetEncoderCV()
     elif categorical_encoder == "Target":
-        one_hot_encoder = TargetEncoder()
+        one_hot_encoder = SimpleTargetEncoder()
     elif categorical_encoder == "Binary":
         one_hot_encoder = BinaryEncoder()
     elif version.parse(sklearn.__version__) < version.parse("1.2"):
