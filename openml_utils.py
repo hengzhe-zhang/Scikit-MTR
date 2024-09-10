@@ -109,7 +109,9 @@ def mean_imputation_and_one_hot_encoding(
     )
 
     # Applying the transformations
-    x_train_transformed = preprocessor.fit_transform(x_train, y=y_train)
+    x_train_transformed = preprocessor.fit_transform(
+        x_train, y=y_train.astype(np.float32)
+    )
     x_test_transformed = preprocessor.transform(x_test)
 
     # Convert y_train and y_test to NumPy arrays if they are not already
