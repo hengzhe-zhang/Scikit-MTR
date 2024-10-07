@@ -1,3 +1,4 @@
+import sys
 from typing import List
 
 import numpy as np
@@ -14,7 +15,9 @@ from sklearn.preprocessing import (
     LabelEncoder,
     OrdinalEncoder,
 )
-from sklearn.preprocessing import TargetEncoder as TargetEncoderCV
+
+if sys.version_info >= (3, 9):
+    from sklearn.preprocessing import TargetEncoder as TargetEncoderCV
 
 from date_util import (
     replace_abbreviated_months_with_numbers,
