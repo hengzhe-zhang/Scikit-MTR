@@ -49,6 +49,16 @@ def remove_columns_with_same_values(df, categorical_indicator, attribute_names):
     )
 
 
+def infer_categorical_features(X):
+    categorical_features = []
+    for feature in X.T:
+        if len(np.unique(feature)) <= 5:
+            categorical_features.append(True)
+        else:
+            categorical_features.append(False)
+    return categorical_features
+
+
 def mean_imputation_and_one_hot_encoding(
     x_train,
     x_test,
@@ -82,7 +92,7 @@ def mean_imputation_and_one_hot_encoding(
         one_hot_encoder = OrdinalEncoder(
             handle_unknown="use_encoded_value", unknown_value=-1
         )
-    elif categorical_encoder == "TargetCV":
+    elif categorical_encoder == "TargetCV" or categorical_encoder == "InferredTargetCV":
         one_hot_encoder = TargetEncoderCV(target_type="continuous")
     elif categorical_encoder == "Target":
         one_hot_encoder = SimpleTargetEncoder()
