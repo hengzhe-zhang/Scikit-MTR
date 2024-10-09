@@ -94,6 +94,8 @@ def mean_imputation_and_one_hot_encoding(
         )
     elif categorical_encoder == "TargetCV" or categorical_encoder == "InferredTargetCV":
         one_hot_encoder = TargetEncoderCV(target_type="continuous")
+    elif categorical_encoder == "TargetLOOCV":
+        one_hot_encoder = TargetEncoderCV(target_type="continuous", cv=len(x_train))
     elif categorical_encoder == "Target":
         one_hot_encoder = SimpleTargetEncoder()
     elif categorical_encoder == "Binary":
