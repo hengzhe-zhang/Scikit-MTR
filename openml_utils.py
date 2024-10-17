@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -64,7 +64,7 @@ def mean_imputation_and_one_hot_encoding(
     x_test,
     y_train,
     y_test,
-    categorical_indicator: List[bool] = None,
+    categorical_indicator: Optional[List[bool]] = None,
     categorical_encoder="Onehot",
 ):
     # Check if x_train and x_test are DataFrames or NumPy arrays
@@ -75,41 +75,45 @@ def mean_imputation_and_one_hot_encoding(
                 replace_abbreviated_days_with_numbers(x_test, target_column)
 
         if categorical_indicator is None:
-            categorical_cols = x_train.select_dtypes(include=["category"]).columns
-            numerical_cols = x_train.select_dtypes(exclude=["category"]).columns
+            categorical_cols = x_train.select_dtypes(
+                include=["category"]
+            ).columns.tolist()
+            numerical_cols = x_train.select_dtypes(
+                exclude=["category"]
+            ).columns.tolist()
         else:
-            categorical_cols = x_train.columns[categorical_indicator]
-            numerical_cols = x_train.columns[~pd.Series(categorical_indicator)]
-    else:  # Assuming NumPy arrays
-        categorical_cols = np.where(categorical_indicator)[0]
-        numerical_cols = np.where(~np.array(categorical_indicator))[0]
-
-    # Creating a transformer for numerical features
+            categorical_cols = x_train.columns[categorical_indicator].tolist()
+            numerical_cols = x_train.columns[~pd.Series(categorical_indicator)].tolist()
+    else:
+        if categorical_indicator is None:
+            raise ValueError("categorical_indicator must be provided for NumPy arrays.")
+        categorical_cols = list(np.where(categorical_indicator)[0])
+        numerical_cols = list(np.where(~np.array(categorical_indicator))[0])
     numerical_transformer = SimpleImputer(strategy="mean")
 
     # Creating a transformer for categorical features
     if categorical_encoder == "Ordinal":
-        one_hot_encoder = OrdinalEncoder(
+        categorical_encoder_instance = OrdinalEncoder(
             handle_unknown="use_encoded_value", unknown_value=-1
         )
-    elif categorical_encoder == "TargetCV" or categorical_encoder == "InferredTargetCV":
-        one_hot_encoder = TargetEncoderCV(target_type="continuous")
+    elif categorical_encoder in ["TargetCV", "InferredTargetCV"]:
+        categorical_encoder_instance = TargetEncoderCV(target_type="continuous")
     elif categorical_encoder == "Target":
-        one_hot_encoder = SimpleTargetEncoder()
+        categorical_encoder_instance = SimpleTargetEncoder()
     elif categorical_encoder == "Binary":
-        one_hot_encoder = BinaryEncoder()
+        categorical_encoder_instance = BinaryEncoder()
     elif version.parse(sklearn.__version__) < version.parse("1.2"):
-        one_hot_encoder = OneHotEncoder(
+        categorical_encoder_instance = OneHotEncoder(
             handle_unknown="ignore", drop="if_binary", sparse=False
         )
     else:
-        one_hot_encoder = OneHotEncoder(
+        categorical_encoder_instance = OneHotEncoder(
             handle_unknown="ignore", drop="if_binary", sparse_output=False
         )
     categorical_transformer = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("onehot", one_hot_encoder),
+            ("encoder", categorical_encoder_instance),
         ]
     )
 
@@ -127,7 +131,11 @@ def mean_imputation_and_one_hot_encoding(
     )
     x_test_transformed = preprocessor.transform(x_test)
 
-    # Convert y_train and y_test to NumPy arrays if they are not already
+    if categorical_indicator is not None:
+        num_numerical = len(numerical_cols)
+        num_categorical = x_train_transformed.shape[1] - num_numerical
+        categorical_indicator[:] = [False] * num_numerical + [True] * num_categorical
+
     y_train = np.array(y_train)
     y_test = np.array(y_test)
 
