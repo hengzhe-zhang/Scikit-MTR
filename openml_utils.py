@@ -72,6 +72,8 @@ def mean_imputation_and_one_hot_encoding(
         for target_column in ["month", "day"]:
             if target_column in x_train.columns:
                 replace_abbreviated_months_with_numbers(x_train, target_column)
+                replace_abbreviated_days_with_numbers(x_train, target_column)
+                replace_abbreviated_months_with_numbers(x_test, target_column)
                 replace_abbreviated_days_with_numbers(x_test, target_column)
 
         if categorical_indicator is None:
@@ -126,9 +128,7 @@ def mean_imputation_and_one_hot_encoding(
     )
 
     # Applying the transformations
-    x_train_transformed = preprocessor.fit_transform(
-        x_train, y=y_train.astype(np.float32)
-    )
+    x_train_transformed = preprocessor.fit_transform(x_train, y=y_train)
     x_test_transformed = preprocessor.transform(x_test)
 
     if categorical_indicator is not None:
