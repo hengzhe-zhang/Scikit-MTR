@@ -91,7 +91,7 @@ def mean_imputation_and_one_hot_encoding(
             raise ValueError("categorical_indicator must be provided for NumPy arrays.")
         categorical_cols = list(np.where(categorical_indicator)[0])
         numerical_cols = list(np.where(~np.array(categorical_indicator))[0])
-    y_test, y_train = y_label_encoding(y_test, y_train)
+    y_train, y_test = y_label_encoding(y_train, y_test)
 
     numerical_transformer = SimpleImputer(strategy="mean")
 
@@ -141,7 +141,7 @@ def mean_imputation_and_one_hot_encoding(
     return x_train_transformed, x_test_transformed, y_train, y_test
 
 
-def y_label_encoding(y_test, y_train):
+def y_label_encoding(y_train, y_test):
     y_train = np.array(y_train)
     y_test = np.array(y_test)
     # Label Encoding for y_train and y_test if they are not numeric (handling multi-target)
@@ -158,7 +158,7 @@ def y_label_encoding(y_test, y_train):
                 y_train[:, col] = label_encoder.fit_transform(y_train[:, col])
                 y_test[:, col] = label_encoder.transform(y_test[:, col])
                 encoders[col] = label_encoder  # Store encoder for each column
-    return y_test, y_train
+    return y_train, y_test
 
 
 def one_hot_encoding(x_merged: pd.DataFrame, categorical_indicator):
