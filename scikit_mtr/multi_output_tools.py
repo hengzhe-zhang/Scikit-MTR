@@ -42,7 +42,7 @@ def load_data_by_sklearn(data_id):
     X, y = data.data, data.target
     x_encoded = input_encoding(X)
     x_encoded = remove_duplicate_features(x_encoded)
-    y = target_encoding(y)
+    y = label_encoding(y)
     return x_encoded, y
 
 
@@ -52,7 +52,7 @@ def input_encoding(df):
     return df_encoded
 
 
-def target_encoding(df):
+def label_encoding(df):
     # Create a LabelEncoder object
     label_encoder = LabelEncoder()
 
