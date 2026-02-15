@@ -25,6 +25,36 @@ from date_util import (
 )
 
 
+class OneHotTargetEncoder:
+    """Custom encoder: OneHot first, then Target; outputs concatenated [onehot, target]."""
+
+    def __init__(self):
+        if version.parse(sklearn.__version__) < version.parse("1.2"):
+            self._onehot = OneHotEncoder(
+                handle_unknown="ignore", drop="if_binary", sparse=False
+            )
+        else:
+            self._onehot = OneHotEncoder(
+                handle_unknown="ignore", drop="if_binary", sparse_output=False
+            )
+        self._target = SimpleTargetEncoder()
+
+    def fit(self, X, y=None):
+        self._onehot.fit(X)
+        self._target.fit(X, y)
+        return self
+
+    def transform(self, X):
+        A = np.asarray(self._onehot.transform(X))
+        B = np.asarray(self._target.transform(X))
+        return np.hstack([A, B])
+
+    def fit_transform(self, X, y=None):
+        A = np.asarray(self._onehot.fit_transform(X))
+        B = np.asarray(self._target.fit_transform(X, y))
+        return np.hstack([A, B])
+
+
 def remove_duplicate_features(x_encoded):
     # Drop duplicate columns
     x_encoded = x_encoded.loc[:, ~x_encoded.columns.duplicated(keep="first")]
@@ -100,6 +130,8 @@ def mean_imputation_and_one_hot_encoding(
         categorical_encoder_instance = OrdinalEncoder(
             handle_unknown="use_encoded_value", unknown_value=-1
         )
+    elif categorical_encoder == "OneHotTarget":
+        categorical_encoder_instance = OneHotTargetEncoder()
     elif categorical_encoder in ["TargetCV", "InferredTargetCV"]:
         categorical_encoder_instance = TargetEncoderCV(target_type="continuous")
     elif categorical_encoder == "Target":
