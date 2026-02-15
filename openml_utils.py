@@ -25,8 +25,14 @@ from date_util import (
 )
 
 
+def _onehot_array_to_categorical_df(A):
+    """Convert one-hot numeric array to DataFrame with object columns so TargetEncoder treats them as categorical."""
+    A = np.asarray(A)
+    return pd.DataFrame(A).astype(str)
+
+
 class OneHotTargetEncoder:
-    """Custom encoder: OneHot first, then Target; outputs concatenated [onehot, target]."""
+    """OneHot transform first, then target-encode those one-hot features (chain, not concat)."""
 
     def __init__(self):
         if version.parse(sklearn.__version__) < version.parse("1.2"):
@@ -41,18 +47,19 @@ class OneHotTargetEncoder:
 
     def fit(self, X, y=None):
         self._onehot.fit(X)
-        self._target.fit(X, y)
+        A = self._onehot.transform(X)
+        self._target.fit(_onehot_array_to_categorical_df(A), y)
         return self
 
     def transform(self, X):
-        A = np.asarray(self._onehot.transform(X))
-        B = np.asarray(self._target.transform(X))
-        return np.hstack([A, B])
+        A = self._onehot.transform(X)
+        return np.asarray(self._target.transform(_onehot_array_to_categorical_df(A)))
 
     def fit_transform(self, X, y=None):
-        A = np.asarray(self._onehot.fit_transform(X))
-        B = np.asarray(self._target.fit_transform(X, y))
-        return np.hstack([A, B])
+        A = self._onehot.fit_transform(X)
+        return np.asarray(
+            self._target.fit_transform(_onehot_array_to_categorical_df(A), y)
+        )
 
 
 def remove_duplicate_features(x_encoded):
