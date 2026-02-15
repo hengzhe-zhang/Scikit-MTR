@@ -39,7 +39,7 @@ class TestMeanImputationAndOneHotEncoding(unittest.TestCase):
             y_train,
             y_test,
             categorical_indicator=categorical_indicator,
-            categorical_encoder="Onehot",
+            categorical_encoder="OneHot",
         )
 
         # One-hot encoding expands cat_feature to three columns

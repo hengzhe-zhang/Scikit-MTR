@@ -65,7 +65,7 @@ def mean_imputation_and_one_hot_encoding(
     y_train,
     y_test,
     categorical_indicator: Optional[List[bool]] = None,
-    categorical_encoder="Onehot",
+    categorical_encoder="OneHot",
 ):
     # Check if x_train and x_test are DataFrames or NumPy arrays
     if isinstance(x_train, pd.DataFrame):
